@@ -4,26 +4,43 @@ using UnityEngine;
 
 public class DroneMover : MonoBehaviour
 {
+    public int dronestate;
+
     private Transform startmarker, endmarker;
     public Transform[] waypoints;
+
+    public Transform player;
 
     public float speed = 1.0f;
     private float startTime;
     private float journeyLength;
 
+    public Light lt;
+    public Light alarm;
+
+    private int alertcounter;
+    private int recovercounter;
+
     int currentStartPoint;
     int currentEndPoint;
+
+    public LayerMask RayCastLayers;
+    
     // Start is called before the first frame update
     void Start()
     {
         currentStartPoint = 0;
         currentEndPoint = 1;
+        dronestate = 0;
+        alertcounter = 0;
+        recovercounter = 0;
+        lt.color = Color.green;
+        alarm.intensity = 0;
         SetPoints();
     }
 
     void SetPoints()
     {
-
         startmarker = waypoints[currentStartPoint];
         endmarker = waypoints[currentEndPoint];
 
@@ -34,25 +51,69 @@ public class DroneMover : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float distcovered = (Time.time - startTime) * speed;
-        float fracJourney = distcovered / journeyLength;
-        transform.position = Vector3.Lerp(startmarker.position, endmarker.position, fracJourney);
-        if (fracJourney >= 1f)
+        //Scout Mode
+        if (dronestate == 0)
         {
-            currentStartPoint++;
-            currentEndPoint++;
+            lt.color = Color.green;
+            alarm.intensity = 0;
 
-            if (currentStartPoint == waypoints.Length)
+            float distcovered = (Time.time - startTime) * speed;
+            float fracJourney = distcovered / journeyLength;
+            transform.position = Vector3.Lerp(startmarker.position, endmarker.position, fracJourney);
+            if (fracJourney >= 1f)
             {
-                currentStartPoint = 0;
+                currentStartPoint++;
+                currentEndPoint++;
+
+                if (currentStartPoint == waypoints.Length)
+                {
+                    currentStartPoint = 0;
+                }
+
+                if (currentEndPoint == waypoints.Length)
+                {
+                    currentEndPoint = 0;
+                }
+
+                SetPoints();
+            }
+        }
+
+        //Alert Mode
+        if (dronestate == 1)
+        {
+            lt.color = Color.red;
+            alarm.intensity = Mathf.Lerp(0,1,2);
+
+            RaycastHit hit;
+
+            //If the sentry cannot see the player
+            if (Physics.Linecast(transform.position, player.position, out hit, RayCastLayers))
+            {
+                recovercounter++;
+
+                if (recovercounter >= 150)
+                {
+                    recovercounter = 0;
+                    dronestate = 0;
+                }
             }
 
-            if (currentEndPoint == waypoints.Length)
+            //If the sentry sees the player
+            else
             {
-                currentEndPoint = 0;
+
             }
 
-            SetPoints();
+        }
+    }
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            dronestate = 1;
         }
     }
 }
