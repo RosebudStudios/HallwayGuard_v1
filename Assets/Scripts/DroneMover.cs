@@ -57,10 +57,9 @@ public class DroneMover : MonoBehaviour
             lt.color = Color.green;
             alarm.intensity = 0;
 
-            float distcovered = (Time.time - startTime) * speed;
-            float fracJourney = distcovered / journeyLength;
-            transform.position = Vector3.Lerp(startmarker.position, endmarker.position, fracJourney);
-            if (fracJourney >= 1f)
+            float step = speed * Time.deltaTime;
+            transform.position = Vector3.MoveTowards(transform.position, endmarker.position, step);
+            if (Vector3.Distance(transform.position, endmarker.position) < 0.001f)
             {
                 currentStartPoint++;
                 currentEndPoint++;
