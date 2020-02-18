@@ -29,9 +29,6 @@ public class DroneMover : MonoBehaviour
 
     public GameObject gc;
 
-    public Color c1 = Color.red;
-    public Color c2 = Color.red;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -44,16 +41,7 @@ public class DroneMover : MonoBehaviour
         lt.color = Color.green;
         alarm.intensity = 0;
 
-        LineRenderer lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.widthMultiplier = 0.2f;
-        float alpha = 1.0f;
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(c1, 0.0f), new GradientColorKey(c2, 1.0f) },
-            new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
-        );
-        lineRenderer.colorGradient = gradient;
+        LineRenderer lineRenderer = GetComponent<LineRenderer>();
 
         SetPoints();
     }
@@ -71,6 +59,10 @@ public class DroneMover : MonoBehaviour
     void Update()
     {
         LineRenderer lineRenderer = GetComponent<LineRenderer>();
+        Color red = Color.red;
+        Color empty = Color.red;
+        red.a = 1f;
+        empty.a = 0f;
 
         //Scout Mode
         if (dronestate == 0)
@@ -78,6 +70,8 @@ public class DroneMover : MonoBehaviour
             lt.color = Color.green;
             lt.intensity = 7f;
             alarm.intensity = 0;
+            lineRenderer.startColor = empty;
+            lineRenderer.endColor = empty;
 
             float step = speed * Time.deltaTime;
             transform.position = Vector3.MoveTowards(transform.position, endmarker.position, step);
@@ -115,6 +109,8 @@ public class DroneMover : MonoBehaviour
                 
                 recovercounter++;
                 alertcounter--;
+                lineRenderer.startColor = empty;
+                lineRenderer.endColor = empty;
 
                 if (recovercounter >= 150)
                 {
@@ -136,8 +132,14 @@ public class DroneMover : MonoBehaviour
                 }
 
 
+                lineRenderer.startColor = red;
+                lineRenderer.endColor = red;
                 lineRenderer.SetPosition(0,transform.position);
                 lineRenderer.SetPosition(1, player.position);
+                
+
+               // lineRenderer.startColor = Color.red;
+               // lineRenderer.endColor = Color.red;
 
 
             }
@@ -146,6 +148,9 @@ public class DroneMover : MonoBehaviour
 
         if (dronestate == 2)
         {
+            lineRenderer.startColor = empty;
+            lineRenderer.endColor = empty;
+
             lt.color = Color.yellow;
             lt.intensity = 0.5f;
             stuncounter++;

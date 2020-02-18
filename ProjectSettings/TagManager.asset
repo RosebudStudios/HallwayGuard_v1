@@ -8,6 +8,7 @@ TagManager:
   - projectile
   - Drone
   - Level
+  - pickup
   layers:
   - Default
   - TransparentFX
