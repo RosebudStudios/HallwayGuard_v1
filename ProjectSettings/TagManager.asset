@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Light
+  - projectile
+  - Drone
+  - Level
   layers:
   - Default
   - TransparentFX
